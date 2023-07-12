@@ -1,6 +1,11 @@
 import tkinter as tk
 from defs import *
 
+def is_white(piece_id):
+    if piece_id % 4 == 0 or piece_id % 4 == 3:
+        return True
+    return False
+
 # =============================================================================
     # Rules for pieces
 # =============================================================================
@@ -19,7 +24,7 @@ def black_pawn_movement(selected_piece_pos, pieces):
         available_pos += [(selected_piece_pos[0],selected_piece_pos[1]+1)]
     # Checks for possible white pieces to take on diagonals
     for i in range(-1,2,2):
-        if (selected_piece_pos[0]+i,selected_piece_pos[1]+1) in pieces.keys() and (pieces[(selected_piece_pos[0]+i,selected_piece_pos[1]+1)]%4 == 0 or pieces[(selected_piece_pos[0]+i,selected_piece_pos[1]+1)]%4 == 3):
+        if (selected_piece_pos[0]+i,selected_piece_pos[1]+1) in pieces.keys() and is_white(pieces[selected_piece_pos[0]+i,selected_piece_pos[1]+1]):
             available_pos += [(selected_piece_pos[0]+i,selected_piece_pos[1]+1)]
     return available_pos
 
@@ -37,31 +42,45 @@ def white_pawn_movement(selected_piece_pos, pieces):
         available_pos += [(selected_piece_pos[0],selected_piece_pos[1]-1)]
     # Checks for possible white pieces to take on diagonals
     for i in range(-1,2,2):
-        if (selected_piece_pos[0]+i,selected_piece_pos[1]-1) in pieces.keys() and (pieces[(selected_piece_pos[0]+i,selected_piece_pos[1]-1)]%4 == 1 or pieces[(selected_piece_pos[0]+i,selected_piece_pos[1]-1)]%4 == 2):
+        if (selected_piece_pos[0]+i,selected_piece_pos[1]-1) in pieces.keys() and not is_white(pieces[selected_piece_pos[0]+i,selected_piece_pos[1]-1]):
             available_pos += [(selected_piece_pos[0]+i,selected_piece_pos[1]-1)]
     return available_pos
-'''
-    available_pos = []
-    if selected_piece_pos[1]==6:
-        for i in range(2):
-            # Checks for piece 1 or 2 in fron depending on 
-            available_pos += [(selected_piece_pos[0],selected_piece_pos[1]-i-1)]
-    else:
-        available_pos += [(selected_piece_pos[0],selected_piece_pos[1]-1)]
-    return available_pos
-'''
+
 # Rooks
-def rook_movement(selected_piece_pos):
+def rook_movement(selected_piece_pos, pieces):
     available_pos = []
+    # Check right for pieces and break once hit a piece
     for i in range(7):
-        # Horizontal movement x-direction
-        available_pos += [((selected_piece_pos[0] + i+1) % 8, selected_piece_pos[1])]
-        # Vertical movement y-direction
-        available_pos += [(selected_piece_pos[0], (selected_piece_pos[1] + i+1) % 8)]
+        if (selected_piece_pos[0]+i+1, selected_piece_pos[1]) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]+i+1, selected_piece_pos[1])]):
+                available_pos += [(selected_piece_pos[0]+i+1, selected_piece_pos[1])]
+            break
+        available_pos += [(selected_piece_pos[0]+i+1, selected_piece_pos[1])]
+    # Check down for pieces and break once hit a piece
+    for i in range(7):
+        if (selected_piece_pos[0], selected_piece_pos[1]+i+1) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0], selected_piece_pos[1]+i+1)]):
+                available_pos += [(selected_piece_pos[0], selected_piece_pos[1]+i+1)]
+            break
+        available_pos += [(selected_piece_pos[0], selected_piece_pos[1]+i+1)]
+    # Check left for pieces and break once hit a piece
+    for i in range(7):
+        if (selected_piece_pos[0]-i-1, selected_piece_pos[1]) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]-i-1, selected_piece_pos[1])]):
+                available_pos += [(selected_piece_pos[0]-i-1, selected_piece_pos[1])]
+            break
+        available_pos += [(selected_piece_pos[0]-i-1, selected_piece_pos[1])]
+    # Check up for pieces and break once hit a piece
+    for i in range(7):
+        if (selected_piece_pos[0], selected_piece_pos[1]-i-1) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0], selected_piece_pos[1]-i-1)]):
+                available_pos += [(selected_piece_pos[0], selected_piece_pos[1]-i-1)]
+            break
+        available_pos += [(selected_piece_pos[0], selected_piece_pos[1]-i-1)]
     return available_pos
 
 # Knights
-def knight_movement(selected_piece_pos):
+def knight_movement(selected_piece_pos, pieces):
     available_pos = []
     available_pos += [(selected_piece_pos[0]-1, selected_piece_pos[1]-2)]
     available_pos += [(selected_piece_pos[0]-2, selected_piece_pos[1]-1)]
@@ -71,6 +90,10 @@ def knight_movement(selected_piece_pos):
     available_pos += [(selected_piece_pos[0]+2, selected_piece_pos[1]-1)]
     available_pos += [(selected_piece_pos[0]+1, selected_piece_pos[1]+2)]
     available_pos += [(selected_piece_pos[0]+2, selected_piece_pos[1]+1)]
+    for loc in available_pos:
+        if loc in pieces and not (is_white(pieces[selected_piece_pos])^is_white(pieces[loc])):
+            print(is_white(pieces[selected_piece_pos]), is_white(pieces[loc]))
+            available_pos.remove(loc)
     return available_pos
 
 # Bishops
@@ -131,10 +154,10 @@ def initial_board(root):
                 available_pos = white_pawn_movement(selected_piece_pos, pieces)
             # Check rook movement
             elif selected_piece_id in [65,67,93,95]:
-                available_pos = rook_movement(selected_piece_pos)
+                available_pos = rook_movement(selected_piece_pos, pieces)
             # Check knight movement
             elif selected_piece_id in [69,71,89,91]:
-                available_pos = knight_movement(selected_piece_pos)
+                available_pos = knight_movement(selected_piece_pos, pieces)
             # Check bishop movement
             elif selected_piece_id in [73,75,85,87]:
                 available_pos = bishop_movement(selected_piece_pos)
@@ -207,7 +230,5 @@ def main():
     root.mainloop()
 
 
-
 if __name__ == "__main__":
     main()
-
