@@ -50,33 +50,33 @@ def white_pawn_movement(selected_piece_pos, pieces):
 def rook_movement(selected_piece_pos, pieces):
     available_pos = []
     # Check right for pieces and break once hit a piece
-    for i in range(7):
-        if (selected_piece_pos[0]+i+1, selected_piece_pos[1]) in pieces:
-            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]+i+1, selected_piece_pos[1])]):
-                available_pos += [(selected_piece_pos[0]+i+1, selected_piece_pos[1])]
+    for i in range(1,8):
+        if (selected_piece_pos[0]+i, selected_piece_pos[1]) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]+i, selected_piece_pos[1])]):
+                available_pos += [(selected_piece_pos[0]+i, selected_piece_pos[1])]
             break
-        available_pos += [(selected_piece_pos[0]+i+1, selected_piece_pos[1])]
+        available_pos += [(selected_piece_pos[0]+i, selected_piece_pos[1])]
     # Check down for pieces and break once hit a piece
-    for i in range(7):
-        if (selected_piece_pos[0], selected_piece_pos[1]+i+1) in pieces:
-            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0], selected_piece_pos[1]+i+1)]):
-                available_pos += [(selected_piece_pos[0], selected_piece_pos[1]+i+1)]
+    for i in range(1,8):
+        if (selected_piece_pos[0], selected_piece_pos[1]+i) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0], selected_piece_pos[1]+i)]):
+                available_pos += [(selected_piece_pos[0], selected_piece_pos[1]+i)]
             break
-        available_pos += [(selected_piece_pos[0], selected_piece_pos[1]+i+1)]
+        available_pos += [(selected_piece_pos[0], selected_piece_pos[1]+i)]
     # Check left for pieces and break once hit a piece
-    for i in range(7):
-        if (selected_piece_pos[0]-i-1, selected_piece_pos[1]) in pieces:
-            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]-i-1, selected_piece_pos[1])]):
-                available_pos += [(selected_piece_pos[0]-i-1, selected_piece_pos[1])]
+    for i in range(1,8):
+        if (selected_piece_pos[0]-i, selected_piece_pos[1]) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]-i, selected_piece_pos[1])]):
+                available_pos += [(selected_piece_pos[0]-i, selected_piece_pos[1])]
             break
-        available_pos += [(selected_piece_pos[0]-i-1, selected_piece_pos[1])]
+        available_pos += [(selected_piece_pos[0]-i, selected_piece_pos[1])]
     # Check up for pieces and break once hit a piece
-    for i in range(7):
-        if (selected_piece_pos[0], selected_piece_pos[1]-i-1) in pieces:
-            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0], selected_piece_pos[1]-i-1)]):
-                available_pos += [(selected_piece_pos[0], selected_piece_pos[1]-i-1)]
+    for i in range(1,8):
+        if (selected_piece_pos[0], selected_piece_pos[1]-i) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0], selected_piece_pos[1]-i)]):
+                available_pos += [(selected_piece_pos[0], selected_piece_pos[1]-i)]
             break
-        available_pos += [(selected_piece_pos[0], selected_piece_pos[1]-i-1)]
+        available_pos += [(selected_piece_pos[0], selected_piece_pos[1]-i)]
     return available_pos
 
 # Knights
@@ -97,39 +97,117 @@ def knight_movement(selected_piece_pos, pieces):
     return available_pos
 
 # Bishops
-def bishop_movement(selected_piece_pos):
+def bishop_movement(selected_piece_pos, pieces):
     available_pos = []
+    # Up & left diagonal
     for i in range(1,8):
+        if (selected_piece_pos[0]-i, selected_piece_pos[1]-i) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]-i, selected_piece_pos[1]-i)]):
+                available_pos += [(selected_piece_pos[0]-i, selected_piece_pos[1]-i)]
+            break
         available_pos += [(selected_piece_pos[0]-i, selected_piece_pos[1]-i)]
+    # Down & left diagonal
+    for i in range(1,8):
+        if (selected_piece_pos[0]-i, selected_piece_pos[1]+i) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]-i, selected_piece_pos[1]+i)]):
+                available_pos += [(selected_piece_pos[0]-i, selected_piece_pos[1]+i)]
+            break
         available_pos += [(selected_piece_pos[0]-i, selected_piece_pos[1]+i)]
+    # Up & right diagonal
+    for i in range(1,8):
+        if (selected_piece_pos[0]+i, selected_piece_pos[1]-i) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]+i, selected_piece_pos[1]-i)]):
+                available_pos += [(selected_piece_pos[0]+i, selected_piece_pos[1]-i)]
+            break
         available_pos += [(selected_piece_pos[0]+i, selected_piece_pos[1]-i)]
+    # Down & right diagonal
+    for i in range(1,8):
+        if (selected_piece_pos[0]+i, selected_piece_pos[1]+i) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]+i, selected_piece_pos[1]+i)]):
+                available_pos += [(selected_piece_pos[0]+i, selected_piece_pos[1]+i)]
+            break
         available_pos += [(selected_piece_pos[0]+i, selected_piece_pos[1]+i)]
     return available_pos
 
 # Queen
-def queen_movement(selected_piece_pos):
+def queen_movement(selected_piece_pos, pieces):
     available_pos = []
-    for i in range(7):
-        # Horizontal movement x-direction
-        available_pos += [((selected_piece_pos[0] + i+1) % 8, selected_piece_pos[1])]
-        # Vertical movement y-direction
-        available_pos += [(selected_piece_pos[0], (selected_piece_pos[1] + i+1) % 8)]
+    ### Up, down, left, right
+    # Check right for pieces and break once hit a piece
     for i in range(1,8):
-        # Diagonal movement
+        if (selected_piece_pos[0]+i, selected_piece_pos[1]) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]+i, selected_piece_pos[1])]):
+                available_pos += [(selected_piece_pos[0]+i, selected_piece_pos[1])]
+            break
+        available_pos += [(selected_piece_pos[0]+i, selected_piece_pos[1])]
+    # Check down for pieces and break once hit a piece
+    for i in range(1,8):
+        if (selected_piece_pos[0], selected_piece_pos[1]+i) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0], selected_piece_pos[1]+i)]):
+                available_pos += [(selected_piece_pos[0], selected_piece_pos[1]+i)]
+            break
+        available_pos += [(selected_piece_pos[0], selected_piece_pos[1]+i)]
+    # Check left for pieces and break once hit a piece
+    for i in range(1,8):
+        if (selected_piece_pos[0]-i, selected_piece_pos[1]) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]-i, selected_piece_pos[1])]):
+                available_pos += [(selected_piece_pos[0]-i, selected_piece_pos[1])]
+            break
+        available_pos += [(selected_piece_pos[0]-i, selected_piece_pos[1])]
+    # Check up for pieces and break once hit a piece
+    for i in range(1,8):
+        if (selected_piece_pos[0], selected_piece_pos[1]-i) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0], selected_piece_pos[1]-i)]):
+                available_pos += [(selected_piece_pos[0], selected_piece_pos[1]-i)]
+            break
+        available_pos += [(selected_piece_pos[0], selected_piece_pos[1]-i)]
+    ### Diagonals ###
+    # Up & left diagonal
+    for i in range(1,8):
+        if (selected_piece_pos[0]-i, selected_piece_pos[1]-i) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]-i, selected_piece_pos[1]-i)]):
+                available_pos += [(selected_piece_pos[0]-i, selected_piece_pos[1]-i)]
+            break
         available_pos += [(selected_piece_pos[0]-i, selected_piece_pos[1]-i)]
+    # Down & left diagonal
+    for i in range(1,8):
+        if (selected_piece_pos[0]-i, selected_piece_pos[1]+i) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]-i, selected_piece_pos[1]+i)]):
+                available_pos += [(selected_piece_pos[0]-i, selected_piece_pos[1]+i)]
+            break
         available_pos += [(selected_piece_pos[0]-i, selected_piece_pos[1]+i)]
+    # Up & right diagonal
+    for i in range(1,8):
+        if (selected_piece_pos[0]+i, selected_piece_pos[1]-i) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]+i, selected_piece_pos[1]-i)]):
+                available_pos += [(selected_piece_pos[0]+i, selected_piece_pos[1]-i)]
+            break
         available_pos += [(selected_piece_pos[0]+i, selected_piece_pos[1]-i)]
+    # Down & right diagonal
+    for i in range(1,8):
+        if (selected_piece_pos[0]+i, selected_piece_pos[1]+i) in pieces:
+            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]+i, selected_piece_pos[1]+i)]):
+                available_pos += [(selected_piece_pos[0]+i, selected_piece_pos[1]+i)]
+            break
         available_pos += [(selected_piece_pos[0]+i, selected_piece_pos[1]+i)]
     return available_pos
 
 # King 
-def king_movement(selected_piece_pos):
+def king_movement(selected_piece_pos, pieces):
     available_pos = []
     for i in range(-1,2):
         for j in range(-1,2):
             available_pos += [(selected_piece_pos[0]+i, selected_piece_pos[1]+j)]
     available_pos.remove((selected_piece_pos[0],selected_piece_pos[1]))
+    for loc in available_pos:
+        if loc in pieces and not (is_white(pieces[selected_piece_pos])^is_white(pieces[loc])):
+            print(is_white(pieces[selected_piece_pos]), is_white(pieces[loc]))
+            available_pos.remove(loc)
     return available_pos
+
+# =============================================================================
+    # Setup board and
+# =============================================================================
 
 def initial_board(root):
     cell_size = board_size // 8 # size of one square on the chess board
@@ -160,13 +238,13 @@ def initial_board(root):
                 available_pos = knight_movement(selected_piece_pos, pieces)
             # Check bishop movement
             elif selected_piece_id in [73,75,85,87]:
-                available_pos = bishop_movement(selected_piece_pos)
+                available_pos = bishop_movement(selected_piece_pos, pieces)
             # Check queen movement
             elif selected_piece_id in [77, 79]:
-                available_pos = queen_movement(selected_piece_pos)
+                available_pos = queen_movement(selected_piece_pos, pieces)
             # Check king movement
             elif selected_piece_id in [81, 83]:
-                available_pos = king_movement(selected_piece_pos)
+                available_pos = king_movement(selected_piece_pos, pieces)
             if ((cell_x, cell_y)) not in available_pos:
                 selected_piece_id = None
                 selected_piece_pos = None
