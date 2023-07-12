@@ -6,25 +6,50 @@ from defs import *
 # =============================================================================
     
 # Black pawns
-def black_pawn_movement(selected_piece_pos):
+def black_pawn_movement(selected_piece_pos, pieces):
     available_pos = []
+    # Is pawn on starting row?
     if selected_piece_pos[1]==1:
         for i in range(2):
+            if (selected_piece_pos[0],selected_piece_pos[1]+i+1) in pieces.keys():
+                break
             available_pos += [(selected_piece_pos[0],selected_piece_pos[1]+i+1)]
-    else:
+    # If pawn is not on starting row
+    elif (selected_piece_pos[0],selected_piece_pos[1]+1) not in pieces.keys():
         available_pos += [(selected_piece_pos[0],selected_piece_pos[1]+1)]
+    # Checks for possible white pieces to take on diagonals
+    for i in range(-1,2,2):
+        if (selected_piece_pos[0]+i,selected_piece_pos[1]+1) in pieces.keys() and (pieces[(selected_piece_pos[0]+i,selected_piece_pos[1]+1)]%4 == 0 or pieces[(selected_piece_pos[0]+i,selected_piece_pos[1]+1)]%4 == 3):
+            available_pos += [(selected_piece_pos[0]+i,selected_piece_pos[1]+1)]
     return available_pos
 
 # White pawns
-def white_pawn_movement(selected_piece_pos):
+def white_pawn_movement(selected_piece_pos, pieces):
+    available_pos = []
+    # Is pawn on starting row?
+    if selected_piece_pos[1]==6:
+        for i in range(2):
+            if (selected_piece_pos[0],selected_piece_pos[1]-i-1) in pieces.keys():
+                break
+            available_pos += [(selected_piece_pos[0],selected_piece_pos[1]-i-1)]
+    # If pawn is not on starting row
+    elif (selected_piece_pos[0],selected_piece_pos[1]+1) not in pieces.keys():
+        available_pos += [(selected_piece_pos[0],selected_piece_pos[1]-1)]
+    # Checks for possible white pieces to take on diagonals
+    for i in range(-1,2,2):
+        if (selected_piece_pos[0]+i,selected_piece_pos[1]-1) in pieces.keys() and (pieces[(selected_piece_pos[0]+i,selected_piece_pos[1]-1)]%4 == 1 or pieces[(selected_piece_pos[0]+i,selected_piece_pos[1]-1)]%4 == 2):
+            available_pos += [(selected_piece_pos[0]+i,selected_piece_pos[1]-1)]
+    return available_pos
+'''
     available_pos = []
     if selected_piece_pos[1]==6:
         for i in range(2):
+            # Checks for piece 1 or 2 in fron depending on 
             available_pos += [(selected_piece_pos[0],selected_piece_pos[1]-i-1)]
     else:
         available_pos += [(selected_piece_pos[0],selected_piece_pos[1]-1)]
     return available_pos
-
+'''
 # Rooks
 def rook_movement(selected_piece_pos):
     available_pos = []
@@ -101,9 +126,9 @@ def initial_board(root):
         if selected_piece_id:
             # Check pawn movement
             if selected_piece_id % 4 == 2:
-                available_pos = black_pawn_movement(selected_piece_pos)
+                available_pos = black_pawn_movement(selected_piece_pos, pieces)
             elif selected_piece_id % 2 == 0:
-                available_pos = white_pawn_movement(selected_piece_pos)
+                available_pos = white_pawn_movement(selected_piece_pos, pieces)
             # Check rook movement
             elif selected_piece_id in [65,67,93,95]:
                 available_pos = rook_movement(selected_piece_pos)
