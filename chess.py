@@ -101,7 +101,7 @@ def initial_board(root):
         if selected_piece_id:
             # Check pawn movement
             if selected_piece_id % 4 == 2:
-                available_pos = black_pawn_movement(selected_piece_pos, pieces)
+                available_pos = black_pawn_movement(selected_piece_pos)
             elif selected_piece_id % 2 == 0:
                 available_pos = white_pawn_movement(selected_piece_pos)
             # Check rook movement
