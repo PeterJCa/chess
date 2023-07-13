@@ -6,9 +6,67 @@ def is_white(piece_id):
         return True
     return False
 
-def check_for_check(pieces):
-    pass
-    #for pieces.values():
+# Checks for if white king in check
+def white_in_check(pieces):
+    for position in pieces.keys():
+        if is_white(pieces[position]):
+            continue
+        # Check pawn movement
+        if pieces[position] % 2 == 0:
+            if 83 in [pieces[key] for key in black_pawn_movement(position, pieces) if key in pieces]:
+                return True
+        # Check rook movement
+        elif pieces[position] in [65,93]:
+            if 83 in [pieces[key] for key in rook_movement(position, pieces) if key in pieces]:
+                return True
+        # Check knight movement
+        elif pieces[position] in [69,89]:
+            if 83 in [pieces[key] for key in knight_movement(position, pieces) if key in pieces]:
+                return True
+        # Check bishop movement
+        elif pieces[position] in [73,85]:
+            if 83 in [pieces[key] for key in bishop_movement(position, pieces) if key in pieces]:
+                return True
+        # Check queen movement
+        elif pieces[position] == 77:
+            if 83 in [pieces[key] for key in queen_movement(position, pieces) if key in pieces]:
+                return True
+        # Check king movement
+        elif pieces[position] == 81:
+            if 83 in [pieces[key] for key in king_movement(position, pieces) if key in pieces]:
+                return True
+    return False
+
+# Checks for if black king in check
+def black_in_check(pieces):
+    for position in pieces.keys():
+        if not is_white(pieces[position]):
+            continue
+        # Check pawn movement
+        if pieces[position] % 2 == 0:
+            if 81 in [pieces[key] for key in white_pawn_movement(position, pieces) if key in pieces]:
+                return True
+        # Check rook movement
+        elif pieces[position] in [67,95]:
+            if 81 in [pieces[key] for key in rook_movement(position, pieces) if key in pieces]:
+                return True
+        # Check knight movement
+        elif pieces[position] in [71,91]:
+            if 81 in [pieces[key] for key in knight_movement(position, pieces) if key in pieces]:
+                return True
+        # Check bishop movement
+        elif pieces[position] in [75,87]:
+            if 81 in [pieces[key] for key in bishop_movement(position, pieces) if key in pieces]:
+                return True
+        # Check queen movement
+        elif pieces[position] == 79:
+            if 81 in [pieces[key] for key in queen_movement(position, pieces) if key in pieces]:
+                return True
+        # Check king movement
+        elif pieces[position] == 83:
+            if 81 in [pieces[key] for key in king_movement(position, pieces) if key in pieces]:
+                return True
+    return False        
         
 
 # =============================================================================
@@ -205,7 +263,6 @@ def king_movement(selected_piece_pos, pieces):
     available_pos.remove((selected_piece_pos[0],selected_piece_pos[1]))
     for loc in available_pos:
         if loc in pieces and not (is_white(pieces[selected_piece_pos])^is_white(pieces[loc])):
-            print(is_white(pieces[selected_piece_pos]), is_white(pieces[loc]))
             available_pos.remove(loc)
     return available_pos
 
@@ -258,10 +315,11 @@ def initial_board(root):
                 selected_piece_id = None
                 selected_piece_pos = None
                 return None
-            # If there's a piece already at the target location, delete it
+            # If there's an oposing piece already at the target location, delete it
             if (cell_x, cell_y) in pieces:
                 canvas.delete(pieces[(cell_x, cell_y)])
                 del pieces[(cell_x, cell_y)]
+                
             # Move the selected piece to the new cell and deselect it
             canvas.coords(selected_piece_id, (event.x // cell_size) * cell_size + int(cell_size / 2), 
                           (event.y // cell_size) * cell_size + int(cell_size / 2))
@@ -270,7 +328,7 @@ def initial_board(root):
             selected_piece_id = None
             selected_piece_pos = None
             whites_turn = not whites_turn
-            print(pieces)
+            print(white_in_check(pieces), black_in_check(pieces))
         elif (cell_x, cell_y) in pieces:
             # Select piece
             selected_piece_id = pieces[(cell_x, cell_y)]
