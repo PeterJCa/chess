@@ -6,6 +6,11 @@ def is_white(piece_id):
         return True
     return False
 
+def check_for_check(pieces):
+    pass
+    #for pieces.values():
+        
+
 # =============================================================================
     # Rules for pieces
 # =============================================================================
@@ -92,7 +97,6 @@ def knight_movement(selected_piece_pos, pieces):
     available_pos += [(selected_piece_pos[0]+2, selected_piece_pos[1]+1)]
     for loc in available_pos:
         if loc in pieces and not (is_white(pieces[selected_piece_pos])^is_white(pieces[loc])):
-            print(is_white(pieces[selected_piece_pos]), is_white(pieces[loc]))
             available_pos.remove(loc)
     return available_pos
 
@@ -218,13 +222,18 @@ def initial_board(root):
     
     selected_piece_id = None
     selected_piece_pos = None
+    whites_turn = True
     pieces = {}
     
     def move_piece(event):
-        nonlocal selected_piece_id, selected_piece_pos
+        nonlocal selected_piece_id, selected_piece_pos, whites_turn
         cell_x = event.x // cell_size
         cell_y = event.y // cell_size
         if selected_piece_id:
+            if (is_white(selected_piece_id) ^ whites_turn):
+                selected_piece_id = None
+                selected_piece_pos = None
+                return None
             # Check pawn movement
             if selected_piece_id % 4 == 2:
                 available_pos = black_pawn_movement(selected_piece_pos, pieces)
@@ -260,6 +269,8 @@ def initial_board(root):
             del pieces[selected_piece_pos]
             selected_piece_id = None
             selected_piece_pos = None
+            whites_turn = not whites_turn
+            print(pieces)
         elif (cell_x, cell_y) in pieces:
             # Select piece
             selected_piece_id = pieces[(cell_x, cell_y)]
