@@ -195,63 +195,9 @@ def bishop_movement(selected_piece_pos, pieces):
 def queen_movement(selected_piece_pos, pieces):
     available_pos = []
     ### Up, down, left, right
-    # Check right for pieces and break once hit a piece
-    for i in range(1,8):
-        if (selected_piece_pos[0]+i, selected_piece_pos[1]) in pieces:
-            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]+i, selected_piece_pos[1])]):
-                available_pos += [(selected_piece_pos[0]+i, selected_piece_pos[1])]
-            break
-        available_pos += [(selected_piece_pos[0]+i, selected_piece_pos[1])]
-    # Check down for pieces and break once hit a piece
-    for i in range(1,8):
-        if (selected_piece_pos[0], selected_piece_pos[1]+i) in pieces:
-            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0], selected_piece_pos[1]+i)]):
-                available_pos += [(selected_piece_pos[0], selected_piece_pos[1]+i)]
-            break
-        available_pos += [(selected_piece_pos[0], selected_piece_pos[1]+i)]
-    # Check left for pieces and break once hit a piece
-    for i in range(1,8):
-        if (selected_piece_pos[0]-i, selected_piece_pos[1]) in pieces:
-            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]-i, selected_piece_pos[1])]):
-                available_pos += [(selected_piece_pos[0]-i, selected_piece_pos[1])]
-            break
-        available_pos += [(selected_piece_pos[0]-i, selected_piece_pos[1])]
-    # Check up for pieces and break once hit a piece
-    for i in range(1,8):
-        if (selected_piece_pos[0], selected_piece_pos[1]-i) in pieces:
-            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0], selected_piece_pos[1]-i)]):
-                available_pos += [(selected_piece_pos[0], selected_piece_pos[1]-i)]
-            break
-        available_pos += [(selected_piece_pos[0], selected_piece_pos[1]-i)]
+    available_pos += rook_movement(selected_piece_pos, pieces)
     ### Diagonals ###
-    # Up & left diagonal
-    for i in range(1,8):
-        if (selected_piece_pos[0]-i, selected_piece_pos[1]-i) in pieces:
-            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]-i, selected_piece_pos[1]-i)]):
-                available_pos += [(selected_piece_pos[0]-i, selected_piece_pos[1]-i)]
-            break
-        available_pos += [(selected_piece_pos[0]-i, selected_piece_pos[1]-i)]
-    # Down & left diagonal
-    for i in range(1,8):
-        if (selected_piece_pos[0]-i, selected_piece_pos[1]+i) in pieces:
-            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]-i, selected_piece_pos[1]+i)]):
-                available_pos += [(selected_piece_pos[0]-i, selected_piece_pos[1]+i)]
-            break
-        available_pos += [(selected_piece_pos[0]-i, selected_piece_pos[1]+i)]
-    # Up & right diagonal
-    for i in range(1,8):
-        if (selected_piece_pos[0]+i, selected_piece_pos[1]-i) in pieces:
-            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]+i, selected_piece_pos[1]-i)]):
-                available_pos += [(selected_piece_pos[0]+i, selected_piece_pos[1]-i)]
-            break
-        available_pos += [(selected_piece_pos[0]+i, selected_piece_pos[1]-i)]
-    # Down & right diagonal
-    for i in range(1,8):
-        if (selected_piece_pos[0]+i, selected_piece_pos[1]+i) in pieces:
-            if is_white(pieces[selected_piece_pos]) ^ is_white(pieces[(selected_piece_pos[0]+i, selected_piece_pos[1]+i)]):
-                available_pos += [(selected_piece_pos[0]+i, selected_piece_pos[1]+i)]
-            break
-        available_pos += [(selected_piece_pos[0]+i, selected_piece_pos[1]+i)]
+    available_pos += bishop_movement(selected_piece_pos, pieces)
     return available_pos
 
 # King 
@@ -283,10 +229,11 @@ def initial_board(root):
     pieces = {}
     
     def move_piece(event):
-        nonlocal selected_piece_id, selected_piece_pos, whites_turn
+        nonlocal selected_piece_id, selected_piece_pos, whites_turn, pieces
         cell_x = event.x // cell_size
         cell_y = event.y // cell_size
         if selected_piece_id:
+            current_board = pieces.copy()
             if (is_white(selected_piece_id) ^ whites_turn):
                 selected_piece_id = None
                 selected_piece_pos = None
@@ -315,20 +262,44 @@ def initial_board(root):
                 selected_piece_id = None
                 selected_piece_pos = None
                 return None
-            # If there's an oposing piece already at the target location, delete it
-            if (cell_x, cell_y) in pieces:
-                canvas.delete(pieces[(cell_x, cell_y)])
+            
+            # If not taking an opponent's piece
+            if (cell_x, cell_y) not in pieces:
+                del pieces[selected_piece_pos]
+                pieces[(cell_x, cell_y)] = selected_piece_id
+                # Check if current player has put themselves in check and if so returns board to original position
+                if (whites_turn and white_in_check(pieces)) or (not whites_turn and black_in_check(pieces)):
+                    pieces = current_board
+                    selected_piece_id = None
+                    selected_piece_pos = None
+                    return None
+                # Move the selected piece to the new cell and deselect it
+                canvas.coords(selected_piece_id, (event.x // cell_size) * cell_size + int(cell_size / 2), 
+                              (event.y // cell_size) * cell_size + int(cell_size / 2))
+            # If taking an opponent's piece
+            elif (cell_x, cell_y) in pieces:
+                del pieces[selected_piece_pos]
                 del pieces[(cell_x, cell_y)]
+                pieces[(cell_x, cell_y)] = selected_piece_id
+                # Check if current player has put themselves in check and if so returns board to original position
+                if (whites_turn and white_in_check(pieces)) or (not whites_turn and black_in_check(pieces)):
+                    pieces = current_board
+                    selected_piece_id = None
+                    selected_piece_pos = None
+                    return None
+                # Move the selected piece to the new cell and deselect it
+                canvas.delete(current_board[(cell_x, cell_y)])
+                canvas.coords(selected_piece_id, (event.x // cell_size) * cell_size + int(cell_size / 2), 
+                              (event.y // cell_size) * cell_size + int(cell_size / 2))
                 
-            # Move the selected piece to the new cell and deselect it
-            canvas.coords(selected_piece_id, (event.x // cell_size) * cell_size + int(cell_size / 2), 
-                          (event.y // cell_size) * cell_size + int(cell_size / 2))
-            pieces[(cell_x, cell_y)] = selected_piece_id
-            del pieces[selected_piece_pos]
+            
+            
+            
             selected_piece_id = None
             selected_piece_pos = None
             whites_turn = not whites_turn
-            print(white_in_check(pieces), black_in_check(pieces))
+            
+            
         elif (cell_x, cell_y) in pieces:
             # Select piece
             selected_piece_id = pieces[(cell_x, cell_y)]
