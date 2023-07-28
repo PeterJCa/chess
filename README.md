@@ -18,8 +18,8 @@ The Chess Project is a Python application that allows you to play a game of ches
 
 - Classic chess rules and movements.
 - Interactive graphical interface to play the game.
-- Highlighting available moves for each piece.
-- Detecting and notifying when a player's king is in check.
+- Limiting pieces to legal moves.
+- Detecting when a player's king is in check.
 
 ## Yet-to-be-Implemented Features
 
